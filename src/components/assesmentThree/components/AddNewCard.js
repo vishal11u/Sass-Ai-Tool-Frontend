@@ -1,162 +1,171 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import React, { useState } from 'react';
+import { Modal, TextField, Button, Typography, CircularProgress, Box } from '@mui/material';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import axios from 'axios';
+import { toast } from 'sonner';
 
-function AddNewCard({
-    isOpen,
-    onClose,
-    setData,
-    editData,
-    setEditData
-}) {
-    const [formData, setFormData] = useState({
-        name: '',
-        image: '',
-        title: '',
-        subtitle: '',
-        description: '',
-        price: ''
-    });
-    const [isEdit, setIsEdit] = useState(false);
+const AddNewCard = ({ isOpen, onClose, setData, editData, setEditData }) => {
+    const [productName, setProductName] = useState(editData?.productName || '');
+    const [category, setCategory] = useState(editData?.category || '');
+    const [tagline, setTagline] = useState(editData?.tagline || '');
+    const [description, setDescription] = useState(editData?.description || '');
+    const [url, setUrl] = useState(editData?.url || '');
+    const [imageURL, setImageURL] = useState(null);
+    const [pricing, setPricing] = useState(editData?.pricing || '');
+    const [keyFeatures, setKeyFeatures] = useState(editData?.keyFeatures || []);
+    const [howToUse, setHowToUse] = useState(editData?.howToUse || '');
+    const [videoUrl, setVideoUrl] = useState(editData?.videoUrl || '');
+    const [uploading, setUploading] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (editData) {
-            setFormData({
-                name: editData.name || '',
-                image: editData.image || '',
-                title: editData.title || '',
-                subtitle: editData.subtitle || '',
-                description: editData.description || '',
-                price: editData.price || ''
-            });
-            setIsEdit(true);
-        } else {
-            setFormData({
-                name: '',
-                image: '',
-                title: '',
-                subtitle: '',
-                description: '',
-                price: ''
-            });
-            setIsEdit(false);
-        }
-    }, [editData, isOpen]);
+    const handleUploadImage = async () => {
+        if (!imageURL) return;
+        setUploading(true);
+        setError(null);
+        setProgress(0);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
         try {
-            let res;
-            if (isEdit) {
-                res = await axios.put(`https://ecommerce-backend-three-eta.vercel.app/api/card/${editData._id}`, formData);
-                toast.success('Card updated successfully!');
-            } else {
-                res = await axios.post('https://ecommerce-backend-three-eta.vercel.app/api/card', formData);
-                toast.success('Card added successfully!');
-            }
-            setData(prevData => isEdit ? prevData.map(card => card._id === res.data._id ? res.data : card) : [...prevData, res.data]);
-            onClose();
-            setEditData(null);
-            setFormData({
-                name: '',
-                image: '',
-                title: '',
-                subtitle: '',
-                description: '',
-                price: ''
-            })
+            const storage = getStorage();
+            const storageRef = ref(storage, "images/" + imageURL.name);
+            await uploadBytes(storageRef, imageURL);
+            const downloadURL = await getDownloadURL(storageRef);
+
+            const payload = {
+                productName,
+                category,
+                tagline,
+                description,
+                url,
+                imageUrl: downloadURL,
+                pricing,
+                keyFeatures,
+                howToUse,
+                videoUrl
+            };
+
+            const response = await axios.post("http://localhost:5000/aitools/save", payload, {
+                headers: {
+                    Authorization: `Bearer YOUR_TOKEN_HERE`
+                },
+                onUploadProgress: (progressEvent) => {
+                    const { loaded, total } = progressEvent;
+                    const percent = Math.floor((loaded * 100) / total);
+                    setProgress(percent);
+                }
+            });
+
+            toast.success('Card added successfully!');
+            setData(prev => [...prev, response.data]); // Assuming the API returns the new card
+            resetForm();
         } catch (error) {
-            toast.error('Failed to save card.');
+            console.error("Error uploading image:", error);
+            setError("Failed to upload image. Please try again.");
+        } finally {
+            setUploading(false);
         }
     };
 
-    if (!isOpen) return null;
+    const resetForm = () => {
+        setProductName('');
+        setCategory('');
+        setTagline('');
+        setDescription('');
+        setUrl('');
+        setImageURL(null);
+        setPricing('');
+        setKeyFeatures([]);
+        setHowToUse('');
+        setVideoUrl('');
+        setEditData(null);
+        onClose();
+    };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg max-w-md w-full">
-                <h2 className="text-2xl font-semibold mb-4">{isEdit ? 'Edit Card' : 'Add New Card'}</h2>
-                <form onSubmit={handleSubmit}>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="Name"
-                        required
-                        className="border border-gray-300 rounded-md px-3 py-2 mb-2 w-full"
+        <Modal open={isOpen} onClose={onClose}>
+            <Box sx={{ backgroundColor: "white",width:600,height:600,overflowY:"auto" }}>
+                <div className="modal-content">
+                    <Typography variant="h6">{editData ? "Edit Card" : "Add New Card"}</Typography>
+                    <TextField
+                        label="Product Name"
+                        fullWidth
+                        value={productName}
+                        onChange={(e) => setProductName(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Category"
+                        fullWidth
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Tagline"
+                        fullWidth
+                        value={tagline}
+                        onChange={(e) => setTagline(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Description"
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        label="URL"
+                        fullWidth
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Pricing"
+                        fullWidth
+                        value={pricing}
+                        onChange={(e) => setPricing(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Key Features (comma separated)"
+                        fullWidth
+                        value={keyFeatures.join(', ')}
+                        onChange={(e) => setKeyFeatures(e.target.value.split(',').map(feature => feature.trim()))}
+                        margin="normal"
+                    />
+                    <TextField
+                        label="How to Use"
+                        fullWidth
+                        multiline
+                        rows={2}
+                        value={howToUse}
+                        onChange={(e) => setHowToUse(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Video URL"
+                        fullWidth
+                        value={videoUrl}
+                        onChange={(e) => setVideoUrl(e.target.value)}
+                        margin="normal"
                     />
                     <input
-                        type="text"
-                        name="image"
-                        value={formData.image}
-                        onChange={handleChange}
-                        placeholder="Image URL"
-                        required
-                        className="border border-gray-300 rounded-md px-3 py-2 mb-2 w-full"
+                        type="file"
+                        onChange={(e) => setImageURL(e.target.files[0])}
                     />
-                    <input
-                        type="text"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleChange}
-                        placeholder="Title"
-                        required
-                        className="border border-gray-300 rounded-md px-3 py-2 mb-2 w-full"
-                    />
-                    <input
-                        type="text"
-                        name="subtitle"
-                        value={formData.subtitle}
-                        onChange={handleChange}
-                        placeholder="Subtitle"
-                        required
-                        className="border border-gray-300 rounded-md px-3 py-2 mb-2 w-full"
-                    />
-                    <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        placeholder="Description"
-                        required
-                        className="border border-gray-300 rounded-md px-3 py-2 mb-2 w-full"
-                    />
-                    <input
-                        type="number"
-                        name="price"
-                        value={formData.price}
-                        onChange={handleChange}
-                        placeholder="Price"
-                        required
-                        className="border border-gray-300 rounded-md px-3 py-2 mb-4 w-full"
-                    />
-                    <div className="flex justify-end">
-                        <button
-                            type="submit"
-                            className="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-                            {isEdit ? 'Update Card' : 'Add Card'}
-                        </button>
-                        <button
-                            type="button"
-                            className="ml-2 bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                            onClick={onClose}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    {uploading && <CircularProgress variant="determinate" value={progress} />}
+                    {error && <Typography color="error">{error}</Typography>}
+                    <Button onClick={handleUploadImage} variant="contained" color="primary">
+                        {editData ? 'Update' : 'Add'} Card
+                    </Button>
+                </div>
+            </Box>
+        </Modal>
     );
-}
+};
 
 export default AddNewCard;

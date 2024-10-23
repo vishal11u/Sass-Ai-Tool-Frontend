@@ -13,6 +13,7 @@
     "@testing-library/user-event": "^13.5.0",
     "assert": "^2.1.0",
     "axios": "^1.7.2",
+    "firebase": "^10.14.1",
     "https-browserify": "^1.0.0",
     "jwt-decode": "^4.0.0",
     "ldrs": "^1.0.2",

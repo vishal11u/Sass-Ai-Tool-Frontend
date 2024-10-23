@@ -46,19 +46,19 @@ const drawerModules = [
     },
     {
         id: 2,
-        title: 'Details',
+        title: 'User Details',
         icon: <SiOpenbadges color='#424242' size={25} />,
         path: '/data'
     },
     {
         id: 3,
-        title: 'Products',
+        title: 'AI Tools',
         icon: <BsCreditCard2Front color='#424242' size={25} />,
         path: '/cardcollection'
     },
     {
         id: 4,
-        title: 'Notes',
+        title: 'Contacts',
         icon: <RiLayoutGrid2Fill color='#424242' size={25} />,
         path: '/notes'
     },

@@ -47,41 +47,18 @@ function DrHospShare() {
     return (
         <div className='w-[20%] h-[39vh] border shadow py-1 bg-white mt-2 px-2 rounded-md overflow-hidden'>
             <div className='flex items-center justify-between space-x-1 border-b pb-1.5 pt-0.5'>
-                <h1 className='font-semibold text-[14px]'>Delivered and Return Orders</h1>
+                <h1 className='font-semibold text-[14px]'>New/Old Users</h1>
             </div>
             <div className='w-full h-[calc(100%-2rem)] mt-2'>
-                <div className='flex justify-around text-[13px] font-medium'>
-                    <div>
-                        <button
-                            type='button'
-                            className={`border px-2 py-0.5 rounded-l ${activeButton === 'Day' ? 'bg-blue-700 text-white' : 'bg-white text-black'}`}
-                            onClick={() => handleButtonClick('Day')}
-                        >
-                            Day
-                        </button>
-                        <button
-                            type='button'
-                            className={`border px-2 py-0.5 ${activeButton === 'Week' ? 'bg-blue-700 text-white' : 'bg-white text-black'}`}
-                            onClick={() => handleButtonClick('Week')}
-                        >
-                            Week
-                        </button>
-                        <button
-                            type='button'
-                            className={`border px-2 py-0.5 rounded-r ${activeButton === 'Month' ? 'bg-blue-700 text-white' : 'bg-white text-black'}`}
-                            onClick={() => handleButtonClick('Month')}
-                        >
-                            Month
-                        </button>
-                    </div>
-                    <div className=''>
+                <div className='flex justify-center text-[13px] font-medium'>
+                    <div className='flex items-center gap-x-5'>
                         <div className='flex items-center'>
-                            <span className='bg-indigo-500 h-2.5 w-2.5 inline-block rounded-full mr-1'></span>
-                            <h1 className='text-[12px] font-medium'>Delivered</h1>
+                            <span className='bg-indigo-500 h-4 w-4 inline-block rounded-full mr-1'></span>
+                            <h1 className='text-[14px] font-medium'>Old</h1>
                         </div>
                         <div className='flex items-center'>
-                            <span className='bg-yellow-500 h-2.5 w-2.5 inline-block rounded-full mr-1'></span>
-                            <h1 className='text-[12px] font-medium'>Return</h1>
+                            <span className='bg-yellow-500 h-4 w-4 inline-block rounded-full mr-1'></span>
+                            <h1 className='text-[14px] font-medium'>New</h1>
                         </div>
                     </div>
                 </div>

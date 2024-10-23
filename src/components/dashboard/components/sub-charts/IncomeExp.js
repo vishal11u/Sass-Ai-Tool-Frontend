@@ -1,122 +1,122 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import axios from 'axios';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CommonLoader from '../../../common/CommonLoader';
 
-function IncomeExp() {
+function PaymentType() {
     const [data, setData] = useState([]);
-    const [activeButton, setActiveButton] = useState('Day');
+    const [activeButton, setActiveButton] = useState('month');
     const [loading, setLoading] = useState(false);
 
     const handleButtonClick = (button) => {
         setActiveButton(button);
     };
 
-    const fetchData = async (filter) => {
+    const getDateRange = (filter) => {
+        const now = new Date();
+        let startDate;
+
+        if (filter === 'day') {
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        } else if (filter === 'week') {
+            startDate = new Date(now.setDate(now.getDate() - 7));
+        } else if (filter === 'month') {
+            startDate = new Date(now.setMonth(now.getMonth() - 1));
+        }
+
+        return { startDate, endDate: new Date() };
+    };
+
+    const fetchContactData = async (filter) => {
         setLoading(true);
+        const { startDate, endDate } = getDateRange(filter);
+
         try {
-            const response = await axios.get('http://localhost:5000/dashboard/ai-tools/week');
-            const { incomeExpenses } = response.data;
+            const response = await axios.get(`http://localhost:5000/dashboard/ai-tools/${activeButton}`);
+            const contactEntries = response.data.aiTools; // Get the aiTools array from the API response
 
-            const getDayName = (date) => {
-                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                return dayNames[new Date(date).getDay()];
-            };
+            const filteredContacts = contactEntries.filter(contact => {
+                const contactDate = new Date(contact.createdAt);
+                return contactDate >= startDate && contactDate <= endDate;
+            });
 
-            const groupedData = incomeExpenses.reduce((acc, { type, amount, date }) => {
-                const dayName = getDayName(new Date(date).toISOString().split('T')[0]);
-                if (!acc[dayName]) acc[dayName] = { income: 0, expense: 0 };
-                acc[dayName][type] += amount;
+            // Aggregate contacts by day
+            const aggregatedData = filteredContacts.reduce((acc, contact) => {
+                const contactDate = new Date(contact.createdAt).toLocaleDateString();
+                if (!acc[contactDate]) {
+                    acc[contactDate] = 0;
+                }
+                acc[contactDate] += 1;
                 return acc;
             }, {});
 
-            const chartData = Object.keys(groupedData).map(day => ({
-                name: day,
-                Income: groupedData[day].income,
-                Expenses: groupedData[day].expense
+            const chartData = Object.keys(aggregatedData).map(date => ({
+                date,
+                count: aggregatedData[date],
             }));
 
             setData(chartData);
         } catch (error) {
-            console.error('Error fetching income and expenses data:', error);
+            console.error('Error fetching contact data:', error);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchData(activeButton.toLowerCase());
+        fetchContactData(activeButton);
     }, [activeButton]);
 
     return (
-        <div className='w-[50%] h-[39vh] border px-2 py-1 mt-2 shadow rounded-md overflow-hidden bg-white'>
+        <div className='w-[50%] h-[39vh] border shadow py-1 mt-2 px-2 ml-3 bg-white rounded-md overflow-hidden'>
             <div className='flex items-center justify-between space-x-1 border-b pb-1.5 pt-0.5'>
-                <h1 className='font-semibold text-[14px]'>Income v/s Expenses</h1>
-                <div className='flex items-center space-x-2 font-medium text-[14px]'>
-                    <div className='flex items-center'>
-                        <span className='bg-green-500 h-3 w-3 inline-block rounded-full mr-1'></span>
-                        <h1>Income</h1>
-                    </div>
-                    <div className='flex items-center'>
-                        <span className='bg-red-500 h-3 w-3 inline-block rounded-full mr-1'></span>
-                        <h1>Expenses</h1>
-                    </div>
-                </div>
+                <h1 className='font-semibold text-[14px]'>AI Tools Created (Day-wise)</h1>
                 <div className='flex items-center text-[13px] font-medium'>
                     <button
                         type='button'
-                        className={`border px-2 py-0.5 rounded-l ${activeButton === 'Day' ? 'bg-blue-700 text-white' : 'bg-white text-black'}`}
-                        onClick={() => handleButtonClick('Day')}
+                        className={`border px-2 py-0.5 rounded-l ${activeButton === 'day' ? 'bg-blue-700 text-white' : 'bg-white text-black'}`}
+                        onClick={() => handleButtonClick('day')}
                     >
                         Day
                     </button>
                     <button
                         type='button'
-                        className={`border px-2 py-0.5 ${activeButton === 'Week' ? 'bg-blue-700 text-white' : 'bg-white text-black'}`}
-                        onClick={() => handleButtonClick('Week')}
+                        className={`border px-2 py-0.5 ${activeButton === 'week' ? 'bg-blue-700 text-white' : 'bg-white text-black'}`}
+                        onClick={() => handleButtonClick('week')}
                     >
                         Week
                     </button>
                     <button
                         type='button'
-                        className={`border px-2 py-0.5 rounded-r ${activeButton === 'Month' ? 'bg-blue-700 text-white' : 'bg-white text-black'}`}
-                        onClick={() => handleButtonClick('Month')}
+                        className={`border px-2 py-0.5 rounded-r ${activeButton === 'month' ? 'bg-blue-700 text-white' : 'bg-white text-black'}`}
+                        onClick={() => handleButtonClick('month')}
                     >
                         Month
                     </button>
                 </div>
             </div>
-            {loading ? (
-                <div className='w-full h-full flex items-center justify-center'>
-                    <CommonLoader />
-                </div>
-            ) : data.length > 0 ? (
-                <div className='w-full h-[calc(100%-2rem)]'>
+            {/* ------------- Chart section -------------- */}
+            <div className='w-full h-[calc(100%-2rem)] flex justify-between'>
+                {loading ? (
+                    <div className='w-full h-full flex items-center justify-center'>
+                        <CommonLoader />
+                    </div>
+                ) : data.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart
-                            data={data}
-                            width={500}
-                            height={300}
-                            margin={{
-                                top: 10,
-                                right: 5,
-                                left: -10,
-                                bottom: 0,
-                            }}
-                        >
-                            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                            <YAxis tick={{ fontSize: 12 }} />
+                        <AreaChart data={data}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis />
                             <Tooltip />
-                            <Line type="monotone" dataKey="Income" stroke="green" strokeWidth={1.5} />
-                            <Line type="monotone" dataKey="Expenses" stroke="red" strokeWidth={1.5} />
-                        </LineChart>
+                            <Area type="monotone" dataKey="count" stroke="#8884d8" fill="#8884d8" />
+                        </AreaChart>
                     </ResponsiveContainer>
-                </div>
-            ) : (
-                <p className='w-full h-full flex items-center justify-center font-medium text-[18px]'>No data available</p>
-            )}
+                ) : (
+                    <p className='w-full h-full flex items-center justify-center font-medium text-[18px]'>No data available</p>
+                )}
+            </div>
         </div>
     );
 }
 
-export default IncomeExp;
+export default PaymentType;

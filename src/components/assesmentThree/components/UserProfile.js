@@ -4,6 +4,7 @@ import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import { IconButton, Tooltip } from "@mui/material";
+import { useSelector } from "react-redux";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     "& .MuiBadge-badge": {
@@ -35,6 +36,9 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 export default function UserProfile() {
+    const { isLoggedIn, user } = useSelector((state) => state.auth);
+    console.log("userdetails", user);
+
     const getGreeting = () => {
         const currentHour = new Date().getHours();
         if (currentHour < 12) {
@@ -67,7 +71,7 @@ export default function UserProfile() {
             </Stack>
             <div className="text-[13px]">
                 <h1>{getGreeting()}</h1>
-                <p>Super Admin</p>
+                <p>{user?.role}</p>
             </div>
         </div>
     );

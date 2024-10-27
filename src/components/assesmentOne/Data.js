@@ -15,8 +15,6 @@ const Data = () => {
     const [role, setRole] = useState('user');
     const [editId, setEditId] = useState(null);
 
-    const navigate = useNavigate();
-
     // Fetch data on component mount
     const fetchData = async () => {
         setLoading(true);
@@ -27,12 +25,13 @@ const Data = () => {
             });
             setData(res.data.users);
         } catch (error) {
-            console.error('Error fetching data:', error);
-            toast.error('Failed to fetch data');
+            toast.error(error.message);
         } finally {
             setLoading(false);
         }
     };
+
+    console.log(data);
 
     useEffect(() => {
         fetchData();

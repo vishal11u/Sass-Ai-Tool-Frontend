@@ -4,6 +4,20 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import axios from 'axios';
 import { toast } from 'sonner';
 
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 800,
+    height: 600,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 2,
+    overflowY: "auto",
+    borderRadius: 0
+};
+
 const AddNewCard = ({ isOpen, onClose, setData, editData, setEditData }) => {
     const [productName, setProductName] = useState(editData?.productName || '');
     const [category, setCategory] = useState(editData?.category || '');
@@ -18,6 +32,19 @@ const AddNewCard = ({ isOpen, onClose, setData, editData, setEditData }) => {
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState(null);
+
+    // const [uploading, setUploading] = useState(false);
+    // const [imageURL, setImageURL] = useState("");
+    const [previewImage, setPreviewImage] = useState("");
+    // const [error, setError] = useState(null);
+
+    const handleImageUrl = (e) => {
+        const image = e.target.files[0];
+        if (image) {
+            setPreviewImage(URL.createObjectURL(image));
+            setImageURL(image);
+        }
+    };
 
     const handleUploadImage = async () => {
         if (!imageURL) return;
@@ -56,7 +83,7 @@ const AddNewCard = ({ isOpen, onClose, setData, editData, setEditData }) => {
             });
 
             toast.success('Card added successfully!');
-            setData(prev => [...prev, response.data]); // Assuming the API returns the new card
+            setData(prev => [...prev, response.data]);
             resetForm();
         } catch (error) {
             console.error("Error uploading image:", error);
@@ -83,7 +110,7 @@ const AddNewCard = ({ isOpen, onClose, setData, editData, setEditData }) => {
 
     return (
         <Modal open={isOpen} onClose={onClose}>
-            <Box sx={{ backgroundColor: "white",width:600,height:600,overflowY:"auto" }}>
+            <Box sx={style}>
                 <div className="modal-content">
                     <Typography variant="h6">{editData ? "Edit Card" : "Add New Card"}</Typography>
                     <TextField

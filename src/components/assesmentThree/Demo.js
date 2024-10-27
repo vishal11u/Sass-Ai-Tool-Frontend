@@ -48,19 +48,19 @@ const drawerModules = [
         id: 2,
         title: 'User Details',
         icon: <SiOpenbadges color='#424242' size={25} />,
-        path: '/data'
+        path: '/userdetails'
     },
     {
         id: 3,
         title: 'AI Tools',
         icon: <BsCreditCard2Front color='#424242' size={25} />,
-        path: '/cardcollection'
+        path: '/aitools'
     },
     {
         id: 4,
         title: 'Contacts',
         icon: <RiLayoutGrid2Fill color='#424242' size={25} />,
-        path: '/notes'
+        path: '/contacts'
     },
 ];
 
@@ -235,7 +235,7 @@ export default function MiniDrawer() {
                                 {open ? null : (
                                     <div className='flex items-center'>
                                         <h1 className='font-bold text-[25px]'>
-                                            Sass Ai
+                                            Best Ai
                                         </h1>
                                         <span className='font-extralight text-[13px] -mt-4 ml-1'>
                                             PRO.
@@ -244,7 +244,7 @@ export default function MiniDrawer() {
                                 )}
                             </Typography>
                             <div className='lg:ml-16 md:ml-9 sm:hidden md:block below-650:hidden lg:block'>
-                                <Search>
+                                {/* <Search>
                                     <SearchIconWrapper>
                                         <SearchIcon />
                                     </SearchIconWrapper>
@@ -252,10 +252,10 @@ export default function MiniDrawer() {
                                         placeholder="Search…"
                                         inputProps={{ 'aria-label': 'search' }}
                                     />
-                                </Search>
+                                </Search> */}
                             </div>
                         </div>
-                        <div className='flex items-center justify-end'>
+                        <div className='flex items-center justify-end gap-x-5'>
                             <FullScreen />
                             <Notifications />
                             <CurrentDate />
@@ -267,17 +267,17 @@ export default function MiniDrawer() {
             </AppBar>
 
             <Drawer variant="permanent" open={open}>
-                <DrawerHeader>
-                    <div className='flex items-center mr-1'>
+                <DrawerHeader sx={{ border: "0px solid black", backgroundColor: "#073763" }}>
+                    <div className='flex items-center mr-1 text-white'>
                         <h1 className='font-bold text-[21px]'>
-                            Sass Ai
+                            Best Ai
                         </h1>
                         <span className='font-extralight text-[12px] -mt-4 ml-1'>
                             PRO.
                         </span>
                     </div>
                     <IconButton onClick={handleDrawerClose}>
-                        <IoChevronBackCircleSharp color='' />
+                        <IoChevronBackCircleSharp color='white' />
                     </IconButton>
                 </DrawerHeader>
 
@@ -312,13 +312,14 @@ export default function MiniDrawer() {
                                 <ListItemIcon
                                     sx={{
                                         minWidth: 0,
-                                        mr: open ? 1 : "auto",
-                                        justifyContent: "center",
-                                        color: selectedItemId === text.id ? "" : "white",
+                                        mr: open ? 1 : 'auto',
+                                        justifyContent: 'center',
+                                        color: selectedItemId === text.id ? 'white' : '#424242', 
                                     }}
                                 >
                                     {text.icon}
                                 </ListItemIcon>
+
 
                                 <ListItemText
                                     primary={text.title}
@@ -342,9 +343,9 @@ export default function MiniDrawer() {
                 <Typography>
                     <Routes>
                         <Route path='/' element={<DashboardAnalytics />} />
-                        <Route path='/cardcollection' element={<CardsSection />} />
-                        <Route path='/data' element={<Data />} />
-                        <Route path='/notes' element={<AddImportantNotes />} />
+                        <Route path='/userdetails' element={<CardsSection />} />
+                        <Route path='/aitools' element={<Data />} />
+                        <Route path='/contacts' element={<AddImportantNotes />} />
                     </Routes>
                 </Typography>
             </Box>

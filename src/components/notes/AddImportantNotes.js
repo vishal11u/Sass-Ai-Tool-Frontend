@@ -1,94 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Modal } from '@mui/material';
-import { BsStars } from "react-icons/bs";
-import { MdOutlineEdit } from "react-icons/md";
-import { MdOutlineDelete } from "react-icons/md";
+import { MdEmail } from "react-icons/md";
+import { FiPhoneCall } from "react-icons/fi";
 
-function Notes() {
-  const [notes, setNotes] = useState([]);
-  const [newNote, setNewNote] = useState('');
-  const [editNoteId, setEditNoteId] = useState(null);
-  const [editNoteText, setEditNoteText] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false); 
+function ContactList() {
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const contactsPerPage = 10;
+
+  const fetchContacts = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:5000/contact/all-contacts');
+      setContacts(response.data);
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchNotes();
+    fetchContacts();
   }, []);
 
-  const fetchNotes = async () => {
-    setLoading(true); 
-    try {
-      const response = await axios.get('https://ecommerce-backend-three-eta.vercel.app/api/notes');
-      setNotes(response.data);
-    } catch (error) {
-      console.error('Error fetching notes:', error);
-    } finally {
-      setLoading(false); 
-    }
+  const handleCall = (mobile) => {
+    window.location.href = `tel:${mobile}`;
   };
 
-  const addNote = async () => {
-    setLoading(true); 
-    try {
-      await axios.post('https://ecommerce-backend-three-eta.vercel.app/api/notes', { message: newNote });
-      setNewNote('');
-      fetchNotes();
-      setModalOpen(false);
-    } catch (error) {
-      console.error('Error adding note:', error);
-    } finally {
-      setLoading(false); 
-    }
+  const handleEmail = (email) => {
+    window.location.href = `mailto:${email}`;
   };
 
-  const updateNote = async () => {
-    setLoading(true); 
-    try {
-      await axios.put(`https://ecommerce-backend-three-eta.vercel.app/api/notes/${editNoteId}`, { message: editNoteText });
-      setEditNoteId(null);
-      setEditNoteText('');
-      fetchNotes();
-      setModalOpen(false);
-    } catch (error) {
-      console.error('Error updating note:', error);
-    } finally {
-      setLoading(false); 
-    }
-  };
+  // Get current contacts based on pagination
+  const indexOfLastContact = currentPage * contactsPerPage;
+  const indexOfFirstContact = indexOfLastContact - contactsPerPage;
+  const currentContacts = contacts.slice(indexOfFirstContact, indexOfLastContact);
 
-  const deleteNote = async (id) => {
-    setLoading(true); 
-    try {
-      await axios.delete(`https://ecommerce-backend-three-eta.vercel.app/api/notes/${id}`);
-      fetchNotes();
-    } catch (error) {
-      console.error('Error deleting note:', error);
-    } finally {
-      setLoading(false); 
-    }
-  };
-
-  const handleOpenModal = () => setModalOpen(true);
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    setNewNote('');
-    setEditNoteId(null);
-    setEditNoteText('');
-  };
+  // Handle pagination
+  const totalPages = Math.ceil(contacts.length / contactsPerPage);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="px-4">
-      <h1 className="text-2xl font-semibold mb-2">Notes</h1>
-      <button
-        type="button"
-        className="flex items-center rounded-md bg-indigo-600 text-white py-2 px-4 mb-4 shadow-lg hover:bg-indigo-700 transition"
-        onClick={handleOpenModal}
-      >
-        <BsStars size={20} className="mr-2" />
-        Add Notes
-      </button>
+      <h1 className="text-2xl font-semibold mb-4">Contact List</h1>
 
       {loading && (
         <div className="text-center text-lg font-bold mt-10">
@@ -96,99 +52,71 @@ function Notes() {
         </div>
       )}
 
-      {!loading && notes?.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {notes.map((note) => (
-            <div key={note._id} className="bg-white border rounded-lg shadow-md h-[290px] overflow-y-auto w-[100%] transition-all hover:scale-[1.02]">
-              <div className="overflow-y-auto">
-                <div className='flex items-center justify-end space-x-3 -mt-0 bg-indigo-500 py-2 px-4'>
-                  <button type='button' className='p-1 bg-blue-600 text-white rounded-md'
-                    onClick={() => {
-                      setEditNoteId(note._id);
-                      setEditNoteText(note.message);
-                      setModalOpen(true)
-                    }}
-                  >
-                    <MdOutlineEdit size={21} />
-                  </button>
-                  <button type='button' className='p-1 rounded-md bg-red-500 text-white'
-                    onClick={() => deleteNote(note._id)}
-                  >
-                    <MdOutlineDelete size={21} />
-                  </button>
-                </div>
-                <h2 className="text-[15px] font-semibold mt-1.5 px-3.5">{note.message}</h2>
-              </div>
-            </div>
-          ))}
-        </div>
+      {!loading && currentContacts.length > 0 ? (
+        <>
+          <table className="min-w-full border-collapse block md:table rounded-md shadow-md border overflow-hidden">
+            <thead className="block md:table-header-group bg-gray-700 text-white">
+              <tr className="border border-gray-200 md:border-none md:table-row">
+                <th className="block md:table-cell p-3 font-semibold text-left">Name</th>
+                <th className="block md:table-cell p-3 font-semibold text-left">Email</th>
+                <th className="block md:table-cell p-3 font-semibold text-left">Country</th>
+                <th className="block md:table-cell p-3 font-semibold text-left">Mobile</th>
+                <th className="block md:table-cell p-3 font-semibold text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="block md:table-row-group">
+              {currentContacts.map((contact, index) => (
+                <tr
+                  key={contact._id}
+                  className={`border-gray-200 border table-row ${index === currentContacts.length - 1 ? '' : 'border-b'
+                    }`}
+                >
+                  <td className="block md:table-cell p-3">{contact.name}</td>
+                  <td className="block md:table-cell p-3">{contact.email}</td>
+                  <td className="block md:table-cell p-3">{contact.country}</td>
+                  <td className="block md:table-cell p-3">{contact.mobile}</td>
+                  <td className="block md:table-cell p-3 space-x-4">
+                    <button
+                      className="p-2 bg-blue-600 text-white rounded-md"
+                      onClick={() => handleCall(contact.mobile)}
+                    >
+                      <FiPhoneCall size={20} />
+                    </button>
+                    <button
+                      className="p-2 bg-green-600 text-white rounded-md"
+                      onClick={() => handleEmail(contact.email)}
+                    >
+                      <MdEmail size={20} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Pagination */}
+          <div className="mt-4 flex justify-center space-x-2">
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => paginate(index + 1)}
+                className={`px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+                  }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+        </>
       ) : (
         !loading && (
           <div className="text-center text-lg font-bold mt-10">
-            No notes yet
+            No contacts found
           </div>
         )
       )}
-
-      <Modal open={modalOpen}>
-        <div className="bg-white p-4 rounded-lg shadow-lg max-w-2xl mx-auto mt-[15%]">
-          <h2 className="text-xl font-bold mb-2">{editNoteId ? 'Edit Note' : 'Add New Note'}</h2>
-          {!editNoteId && (
-            <div className="mb-2 text-right">
-              <textarea
-                name="description"
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                placeholder="Add new note"
-                required
-                className="border border-gray-300 rounded-md px-3 py-2 h-36 mb-2 w-full"
-              />
-              <div className='space-x-3 flex items-center justify-end'>
-                <button
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
-                  onClick={handleCloseModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition"
-                  onClick={addNote}
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          )}
-          {editNoteId && (
-            <div className="mb-2 text-right">
-              <textarea
-                name="description"
-                placeholder="Edit note"
-                value={editNoteText}
-                onChange={(e) => setEditNoteText(e.target.value)}
-                required
-                className="border border-gray-300 rounded-md px-3 py-2 h-36 mb-2 w-full"
-              />
-              <div className='flex items-center justify-end space-x-2'>
-                <button
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition"
-                  onClick={handleCloseModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
-                  onClick={updateNote}
-                >
-                  Update
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </Modal>
     </div>
   );
 }
 
-export default Notes;
+export default ContactList;

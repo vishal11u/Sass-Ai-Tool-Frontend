@@ -19,6 +19,7 @@ const LoginPage = ({
 
     const handleSubmit = async (e) => {
         // console.log("jdhudbdb", username, password);
+        e.preventDefault();
         dispatch(loginUser({ username, password }))
             .unwrap()
             .then(() => {
@@ -28,7 +29,6 @@ const LoginPage = ({
                 toast.error('Login Error:', error);
                 navigate('/login');
             });
-        e.preventDefault();
         // try {
         //     const res = await axios.post('http://localhost:5000/api/auth/login', { username, password });
         //     localStorage.setItem('token', res.data.token);

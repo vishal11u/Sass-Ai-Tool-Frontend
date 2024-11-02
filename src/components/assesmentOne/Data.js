@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import { IoIosAddCircleOutline } from "react-icons/io";
 
 const Data = () => {
@@ -13,6 +12,7 @@ const Data = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("user");
+  const [isActive, setIsActive] = useState(true); // For Active/Inactive status
   const [editId, setEditId] = useState(null);
 
   // Fetch data on component mount
@@ -31,8 +31,6 @@ const Data = () => {
     }
   };
 
-  console.log(data);
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -40,15 +38,18 @@ const Data = () => {
   // Handle Add/Update
   const handleAddOrUpdate = async (e) => {
     e.preventDefault();
-    if (!username || !password) {
-      toast.warning("Please fill out all fields.");
-      return;
+    if (editId === null) {
+      if (!username || !password || password !== confirmPassword) {
+        toast.warning("Please fill out all fields and confirm password.");
+        return;
+      }
     }
     setLoading(true);
+
     try {
       const token = localStorage.getItem("token");
-      const userData = { username, password, confirmPassword, role };
-      if (editId) {
+      const userData = { username, password, confirmPassword, role, isActive };
+      if (editId !== null) {
         await axios.put(
           `http://localhost:5000/auth/update/${editId}`,
           userData,
@@ -57,7 +58,9 @@ const Data = () => {
           }
         );
         setData(
-          data.map((d) => (d.id === editId ? { ...d, username, role } : d))
+          data.map((d) =>
+            d.id === editId ? { ...d, username, role, isActive } : d
+          )
         );
         toast.success("Updated Successfully");
       } else {
@@ -70,7 +73,6 @@ const Data = () => {
         );
         setData([...data, res.data]);
         toast.success("Added Successfully");
-        setShowModal(false);
       }
       setShowModal(false);
       resetForm();
@@ -86,79 +88,74 @@ const Data = () => {
   const resetForm = () => {
     setUsername("");
     setPassword("");
+    setConfirmPassword("");
     setRole("user");
+    setIsActive(true);
     setEditId(null);
-  };
-
-  // Handle Delete
-  const handleDelete = async (id) => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/auth/delete/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setData(data.filter((d) => d._id !== id));
-      toast.success("Deleted Successfully");
-    } catch (error) {
-      console.error("Error deleting data:", error);
-      toast.error("Failed to delete data");
-    } finally {
-      setLoading(false);
-    }
   };
 
   // Handle Edit
   const handleEdit = (user) => {
     setUsername(user.username);
     setRole(user.role);
-    setEditId(user._id);
+    setIsActive(user.isActive);
+    setEditId(user.id);
     setShowModal(true);
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-xl font-bold mb-4">User Management</h2>
-      <button
-        onClick={() => setShowModal(true)}
-        className="bg-blue-500 text-white py-2 px-4 rounded-md mb-4 flex items-center"
-      >
-        <IoIosAddCircleOutline className="mr-2" /> Add New User
-      </button>
+    <div className="container mx-auto px-3 pt-1">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold mb-6">User Management</h2>
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-blue-500 text-white py-2 px-4 rounded-md mb-4 flex items-center"
+        >
+          <IoIosAddCircleOutline size={20} className="mr-2" /> Add New User
+        </button>
+      </div>
+
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <table className="min-w-full bg-white border rounded-md overflow-hidden shadow-md">
+        <table className="min-w-full bg-white border rounded-lg overflow-hidden shadow-lg">
           <thead className="bg-gray-800 text-white">
             <tr>
-              <th className="px-4 py-2 border">Username</th>
-              <th className="px-4 py-2 border">Role</th>
-              <th className="px-4 py-2 border">Type</th>
-              <th className="px-4 py-2 border">Actions</th>
+              <th className="px-6 py-3">Username</th>
+              <th className="px-6 py-3">Role</th>
+              <th className="px-6 py-3">Status</th>
+              <th className="px-6 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {data.map((user) => (
-              <tr key={user._id}>
-                <td className="px-4 py-2 border">{user.username}</td>
-                <td className="px-4 py-2 border">{user.role}</td>
-                <td className="px-4 py-2 border">{user.type}</td>
-                <td className="px-4 py-2 border">
-                  <button
-                    onClick={() => handleEdit(user)}
-                    className="text-green-500 mr-2"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    className="text-red-500"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {data.length > 0 &&
+              data.map((user) => (
+                <tr key={user._id} className="hover:bg-gray-100">
+                  <td className="px-6 py-4 text-center">{user.username}</td>
+                  <td className="px-6 py-4 text-center">{user.role}</td>
+                  <td className="px-6 py-4 text-center">
+                    {user.isActive ? (
+                      <div className="flex items-center justify-center">
+                        <span className="h-4 w-4 bg-green-500 rounded-full mr-2"></span>
+                        <span>Active</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center">
+                        <span className="h-4 w-4 bg-red-500 rounded-full mr-2"></span>
+                        <span>Inactive</span>
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      onClick={() => handleEdit(user)}
+                      className="text-green-500"
+                    >
+                      <FaEdit />
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       )}
@@ -179,7 +176,7 @@ const Data = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md"
-                  required
+                  required={editId !== null ? false : true}
                 />
               </div>
               <div className="mb-4">
@@ -191,7 +188,7 @@ const Data = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md"
-                  required
+                  required={editId !== null ? false : true}
                 />
               </div>
               <div className="mb-4">
@@ -203,7 +200,7 @@ const Data = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md"
-                  required
+                  required={editId !== null ? false : true}
                 />
               </div>
               <div className="mb-4">
@@ -233,11 +230,38 @@ const Data = () => {
                   </label>
                 </div>
               </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Status</label>
+                <div>
+                  <label className="mr-4">
+                    <input
+                      type="radio"
+                      name="isActive"
+                      value="true"
+                      checked={isActive === true}
+                      onChange={() => setIsActive(true)}
+                      className="mr-2"
+                    />
+                    Active
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="isActive"
+                      value="false"
+                      checked={isActive === false}
+                      onChange={() => setIsActive(false)}
+                      className="mr-2"
+                    />
+                    Inactive
+                  </label>
+                </div>
+              </div>
               <div className="flex justify-end">
                 <button
                   onClick={() => setShowModal(false)}
                   type="button"
-                  className="bg-gray-300 text-black py-2 px-4 rounded-md mr-2"
+                  className="bg-gray-300 text-black py-2 px-4 rounded-md                  mr-2"
                 >
                   Cancel
                 </button>
@@ -245,7 +269,7 @@ const Data = () => {
                   type="submit"
                   className="bg-blue-500 text-white py-2 px-4 rounded-md"
                 >
-                  {editId ? "Update" : "Add"}
+                  {editId !== null ? "Update" : "Add"}
                 </button>
               </div>
             </form>

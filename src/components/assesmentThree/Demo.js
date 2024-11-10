@@ -29,7 +29,7 @@ import Notifications from "./components/Notifications";
 import CurrentDate from "./components/CurrentDate";
 import UserProfile from "./components/UserProfile";
 import UserLogout from "./components/UserLogout";
-import { ListItem, ListItemText, Tooltip } from "@mui/material";
+import { Divider, ListItem, ListItemText, Tooltip } from "@mui/material";
 import LogoSideBar from "../../assets/LogoDrawer.png";
 import LogoNavabr from "../../assets/LogoNavbar.png";
 
@@ -39,25 +39,25 @@ const drawerModules = [
   {
     id: 1,
     title: "Dashboard",
-    icon: <MdOutlineDashboard color="#424242" size={25} />,
+    icon: <MdOutlineDashboard size={25} />,
     path: "/",
   },
   {
     id: 2,
-    title: "User Details",
-    icon: <SiOpenbadges color="#424242" size={25} />,
-    path: "/userdetails",
+    title: "AI Tools",
+    icon: <SiOpenbadges size={25} />,
+    path: "/aitools",
   },
   {
     id: 3,
-    title: "AI Tools",
-    icon: <BsCreditCard2Front color="#424242" size={25} />,
-    path: "/aitools",
+    title: "User Details",
+    icon: <BsCreditCard2Front size={25} />,
+    path: "/userdetails",
   },
   {
     id: 4,
     title: "Contacts",
-    icon: <RiLayoutGrid2Fill color="#424242" size={25} />,
+    icon: <RiLayoutGrid2Fill size={25} />,
     path: "/contacts",
   },
 ];
@@ -127,7 +127,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 export default function MiniDrawer() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
   const [selectedItemId, setSelectedItemId] = React.useState(1);
   const location = useLocation();
 
@@ -219,7 +219,11 @@ export default function MiniDrawer() {
 
       <Drawer variant="permanent" open={open}>
         <DrawerHeader
-          sx={{ border: "0px solid black", backgroundColor: "073763" }}
+          sx={{
+            border: "0px solid black",
+            backgroundColor: "073763",
+            borderBottom: "1px solid #073763",
+          }}
         >
           <div className="flex items-center text-white">
             {!open ? null : (
@@ -267,7 +271,7 @@ export default function MiniDrawer() {
                         minWidth: 0,
                         mr: open ? 1 : "auto",
                         justifyContent: "center",
-                        color: selectedItemId === text.id ? "white" : "#424242",
+                        color: selectedItemId === text.id ? "white" : "#073763",
                       }}
                     >
                       {text.icon}
@@ -279,9 +283,10 @@ export default function MiniDrawer() {
                         opacity: open ? 1 : 0,
                         color: selectedItemId === text.id ? "white" : "#073763",
                         "& .css-10hburv-MuiTypography-root": {
-                          fontSize: "14px",
-                          fontWeight: 500,
+                          fontSize: "15px",
+                          fontWeight: "600",
                         },
+                        scale: selectedItemId === text.id ? 1.1 : 0.8,
                       }}
                     />
                   </ListItemButton>
@@ -296,8 +301,8 @@ export default function MiniDrawer() {
         <Typography>
           <Routes>
             <Route path="/" element={<DashboardAnalytics />} />
-            <Route path="/userdetails" element={<CardsSection />} />
-            <Route path="/aitools" element={<Data />} />
+            <Route path="/aitools" element={<CardsSection />} />
+            <Route path="/userdetails" element={<Data />} />
             <Route path="/contacts" element={<AddImportantNotes />} />
           </Routes>
         </Typography>

@@ -7,9 +7,9 @@ import Skeleton from "@mui/material/Skeleton";
 import AddNewCard from "./components/AddNewCard";
 import axios from "axios";
 import { toast } from "sonner";
-import { MdEditNote } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { FaOpencart } from "react-icons/fa";
+import { MdModeEditOutline } from "react-icons/md";
 
 function CardsSection() {
   const [loading, setLoading] = useState(true);
@@ -121,11 +121,27 @@ function CardsSection() {
               data.map((list, index) => (
                 <div
                   key={index}
-                  className="p-4 border w-full rounded-md shadow-md bg-white overflow-hidden relative"
+                  className="p-4 border w-full rounded-lg shadow-md bg-white overflow-hidden relative transition-all ease-in-out duration-200 hover:scale-[1.02]"
                 >
                   {/* Price Square */}
-                  <div className="absolute top-6 left-6 bg-blue-500 text-white rounded-md px-2 py-1 text-sm">
+                  <div className="absolute top-6 left-6 bg-blue-500 font-medium text-white rounded-md px-2 py-1 text-sm">
                     {list?.pricing}
+                  </div>
+                  <div className="flex absolute justify-between gap-x-2 top-44 right-6">
+                    <button
+                      className="bg-blue-500 text-white rounded-md py-1 px-1 font-medium"
+                      type="button"
+                      onClick={() => handleEdit(list)}
+                    >
+                      <MdModeEditOutline size={20} />
+                    </button>
+                    <button
+                      className="bg-red-500 text-white rounded-md py-1 px-1 font-medium"
+                      type="button"
+                      onClick={() => handleDelete(list._id)}
+                    >
+                      <MdDelete size={20} />
+                    </button>
                   </div>
 
                   <img
@@ -148,22 +164,22 @@ function CardsSection() {
                   </p>
 
                   {/* Edit and Delete Buttons */}
-                  <div className="flex justify-between gap-x-2 pt-5 Pb-5 px-3 absolute bottom-0 right-0">
+                  {/* <div className="flex justify-between gap-x-2 pt-5 Pb-5 px-3 absolute bottom-0 right-0">
                     <button
                       className="bg-blue-500 text-white rounded-md py-1 px-3 font-medium"
                       type="button"
                       onClick={() => handleEdit(list)}
                     >
-                      <MdEditNote size={20}/>
+                      <MdEditNote size={20} />
                     </button>
                     <button
                       className="bg-red-500 text-white rounded-md py-1 px-3 font-medium"
                       type="button"
                       onClick={() => handleDelete(list._id)}
                     >
-                      <MdDelete size={20}/>
+                      <MdDelete size={20} />
                     </button>
-                  </div>
+                  </div> */}
                 </div>
               ))}
           </div>

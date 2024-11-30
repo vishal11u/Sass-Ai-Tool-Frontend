@@ -20,9 +20,12 @@ const Data = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/auth/users/list", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "http://localhost:5000/auth/users/list",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setData(res.data.users);
     } catch (error) {
       toast.error(error.message);

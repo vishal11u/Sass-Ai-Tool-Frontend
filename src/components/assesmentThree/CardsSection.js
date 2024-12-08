@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import { Button, CardActionArea, CardActions, Typography } from "@mui/material";
+import { CardActionArea, CardActions, Typography } from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
 import AddNewCard from "./components/AddNewCard";
 import axios from "axios";

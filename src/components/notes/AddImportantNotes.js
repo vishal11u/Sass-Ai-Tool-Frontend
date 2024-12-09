@@ -13,7 +13,7 @@ function ContactList() {
     setLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:5000/contact/all-contacts"
+        "https://best-aitool-backend.vercel.app/contact/all-contacts"
       );
       setContacts(response.data);
     } catch (error) {

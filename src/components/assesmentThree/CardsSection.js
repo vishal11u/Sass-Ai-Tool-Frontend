@@ -27,7 +27,7 @@ function CardsSection() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/aitools", {
+      const res = await axios.get("https://best-aitool-backend.vercel.app/aitools", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,7 +49,7 @@ function CardsSection() {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/aitools/delete/${id}`, {
+      await axios.delete(`https://best-aitool-backend.vercel.app/aitools/delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

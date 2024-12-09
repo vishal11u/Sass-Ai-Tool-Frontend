@@ -29,16 +29,7 @@ const LoginPage = ({
                 toast.error('Login Error:', error);
                 navigate('/login');
             });
-        // try {
-        //     const res = await axios.post('http://localhost:5000/api/auth/login', { username, password });
-        //     localStorage.setItem('token', res.data.token);
-        //     navigate('/data');
-        //     toast.success("Login Successfully")
-        // } catch (err) {
-        //     // toast.error(err.response.data);
-        //     toast.error("Invalid Username and Password");
-        //     // console.log("subcyycgyc", err);
-        // }
+       
     };
 
     const handleClick = () => {

@@ -90,7 +90,7 @@ const AddNewCard = ({ isOpen, onClose, setData, editData, setEditData }) => {
 
       if (editData && editData !== null) {
         const response = await axios.put(
-          `http://localhost:5000/aitools/update/${editData._id}`,
+          `https://best-aitool-backend.vercel.app/aitools/update/${editData._id}`,
           payload,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -103,7 +103,7 @@ const AddNewCard = ({ isOpen, onClose, setData, editData, setEditData }) => {
         );
       } else {
         const response = await axios.post(
-          "http://localhost:5000/aitools/save",
+          "https://best-aitool-backend.vercel.app/aitools/save",
           payload,
           {
             headers: { Authorization: `Bearer ${token}` },

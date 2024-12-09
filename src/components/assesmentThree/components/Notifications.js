@@ -22,7 +22,7 @@ function Notifications() {
   const fetchNotifications = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/notifications/admin/all"
+        "https://best-aitool-backend.vercel.app/notifications/admin/all"
       );
       setUnreadCount(res.data);
     } catch (error) {
@@ -76,7 +76,7 @@ function NotificationModal({ open, handleClose }) {
     setLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:5000/notifications/admin/all"
+        "https://best-aitool-backend.vercel.app/notifications/admin/all"
       );
       setNotifications(response.data);
       setLoading(false);
@@ -93,7 +93,7 @@ function NotificationModal({ open, handleClose }) {
 
   const markAllAsRead = async () => {
     try {
-      await axios.put("http://localhost:5000/notifications/markAllRead");
+      await axios.put("https://best-aitool-backend.vercel.app/notifications/markAllRead");
       setNotifications(
         notifications.map((notification) => ({
           ...notification,

@@ -3,7 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";  
 
 const AuthService = () => {
-    const apiUrl = 'http://localhost:5000/auth/login';
+    const apiUrl = 'https://best-aitool-backend.vercel.app/auth/login';
     return apiUrl;
 };
 

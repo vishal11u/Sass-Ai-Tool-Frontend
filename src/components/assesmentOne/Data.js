@@ -21,7 +21,7 @@ const Data = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        "http://localhost:5000/auth/users/list",
+        "https://best-aitool-backend.vercel.app/auth/users/list",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -54,7 +54,7 @@ const Data = () => {
       const userData = { username, password, confirmPassword, role, isActive };
       if (editId !== null) {
         await axios.put(
-          `http://localhost:5000/auth/update/${editId}`,
+          `https://best-aitool-backend.vercel.app/auth/update/${editId}`,
           userData,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -68,7 +68,7 @@ const Data = () => {
         toast.success("Updated Successfully");
       } else {
         const res = await axios.post(
-          "http://localhost:5000/auth/signup",
+          "https://best-aitool-backend.vercel.app/auth/signup",
           userData,
           {
             headers: { Authorization: `Bearer ${token}` },

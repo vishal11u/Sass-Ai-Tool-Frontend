@@ -41,7 +41,7 @@ function PaymentType() {
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/dashboard/ai-tools/${activeButton}`
+        `https://best-aitool-backend.vercel.app/dashboard/ai-tools/${activeButton}`
       );
       const contactEntries = response.data.aiTools;
 

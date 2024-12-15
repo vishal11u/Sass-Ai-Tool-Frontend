@@ -65,6 +65,7 @@ const userSlice = createSlice({
                 state.error = null;
 
                 const logoutAfter = 24 * 60 * 60 * 1000;
+                
                 setTimeout(() => {
                     state.isLoggedIn = false;
                     state.user = null;
